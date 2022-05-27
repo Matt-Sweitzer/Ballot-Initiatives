@@ -11,7 +11,7 @@
 
 
 
-<title>BallotWording.knit</title>
+<title>Ballot Wording</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -2982,8 +2982,8 @@ in as follows:</p>
 <p>Here is a comprehensive list of the different data frames we used for
 this analysis:</p>
 <pre class="r"><code>ls()</code></pre>
-<pre><code>## [1] &quot;BallotTopics&quot;       &quot;S1_BallotData&quot;      &quot;S1_LabData&quot;        
-## [4] &quot;S1_ParticipantData&quot; &quot;S1_PrestudyData&quot;    &quot;S2_BallotData&quot;     
+<pre><code>## [1] &quot;BallotTopics&quot;       &quot;S1_BallotData&quot;      &quot;S1_LabData&quot;
+## [4] &quot;S1_ParticipantData&quot; &quot;S1_PrestudyData&quot;    &quot;S2_BallotData&quot;
 ## [7] &quot;S2_LabData&quot;         &quot;S2_ParticipantData&quot; &quot;S2_PrestudyData&quot;</code></pre>
 <p>The prefix <code>S1_</code> indicates that this data corresponds to
 Study 1 in the manuscript; likewise <code>S2_</code> corresponds to
@@ -3435,30 +3435,30 @@ anova(RMANOVA3)</code></pre>
 <h4>3-item Scale (used)</h4>
 <pre class="r"><code>Fluency_Scale&lt;-as.data.frame(cbind(S1_LabData$fluency2_r, S1_LabData$fluency3, S1_LabData$fluency4))
 alpha(Fluency_Scale)</code></pre>
-<pre><code>## 
-## Reliability analysis   
+<pre><code>##
+## Reliability analysis
 ## Call: alpha(x = Fluency_Scale)
-## 
+##
 ##   raw_alpha std.alpha G6(smc) average_r S/N    ase mean  sd median_r
 ##       0.91      0.91    0.87      0.77  10 0.0023  4.9 1.6     0.76
-## 
-##     95% confidence boundaries 
+##
+##     95% confidence boundaries
 ##          lower alpha upper
 ## Feldt      0.9  0.91  0.91
 ## Duhachek   0.9  0.91  0.91
-## 
+##
 ##  Reliability if an item is dropped:
 ##    raw_alpha std.alpha G6(smc) average_r S/N alpha se var.r med.r
 ## V1      0.86      0.86    0.76      0.76 6.3   0.0040    NA  0.76
 ## V2      0.89      0.89    0.80      0.80 7.9   0.0032    NA  0.80
 ## V3      0.86      0.86    0.75      0.75 6.0   0.0041    NA  0.75
-## 
-##  Item statistics 
+##
+##  Item statistics
 ##       n raw.r std.r r.cor r.drop mean  sd
 ## V1 4799  0.92  0.92  0.87   0.83  4.8 1.7
 ## V2 4800  0.91  0.91  0.83   0.79  4.8 1.7
 ## V3 4799  0.92  0.93  0.87   0.83  5.0 1.7
-## 
+##
 ## Non missing response frequency for each item
 ##       1    2    3    4    5    6    7 miss
 ## V1 0.03 0.10 0.19 0.07 0.15 0.32 0.15    0
@@ -3474,32 +3474,32 @@ alpha(Fluency_Scale)</code></pre>
 <h4>4-item Scale (reported)</h4>
 <pre class="r"><code>Fluency_Scale&lt;-as.data.frame(cbind(S1_LabData$fluency1_r, S1_LabData$fluency2_r, S1_LabData$fluency3, S1_LabData$fluency4))
 alpha(Fluency_Scale)</code></pre>
-<pre><code>## 
-## Reliability analysis   
+<pre><code>##
+## Reliability analysis
 ## Call: alpha(x = Fluency_Scale)
-## 
+##
 ##   raw_alpha std.alpha G6(smc) average_r S/N    ase mean  sd median_r
 ##       0.81       0.8    0.81       0.5   4 0.0044  4.4 1.3      0.5
-## 
-##     95% confidence boundaries 
+##
+##     95% confidence boundaries
 ##          lower alpha upper
 ## Feldt      0.8  0.81  0.82
 ## Duhachek   0.8  0.81  0.82
-## 
+##
 ##  Reliability if an item is dropped:
 ##    raw_alpha std.alpha G6(smc) average_r  S/N alpha se   var.r med.r
 ## V1      0.91      0.91    0.87      0.77 10.0   0.0023 0.00068  0.76
 ## V2      0.69      0.68    0.67      0.41  2.1   0.0079 0.09143  0.26
 ## V3      0.69      0.68    0.70      0.42  2.1   0.0078 0.11003  0.23
 ## V4      0.69      0.68    0.67      0.41  2.1   0.0077 0.08517  0.26
-## 
-##  Item statistics 
+##
+##  Item statistics
 ##       n raw.r std.r r.cor r.drop mean  sd
 ## V1 4798  0.51  0.54  0.27   0.26  2.8 1.5
 ## V2 4799  0.89  0.88  0.87   0.77  4.8 1.7
 ## V3 4800  0.88  0.87  0.84   0.76  4.8 1.7
 ## V4 4799  0.88  0.88  0.87   0.77  5.0 1.7
-## 
+##
 ## Non missing response frequency for each item
 ##       1    2    3    4    5    6    7 miss
 ## V1 0.16 0.38 0.20 0.09 0.08 0.07 0.01    0
@@ -3530,9 +3530,9 @@ determine whether a ballot passed.</p>
 ##                    0  5  5
 ##                    1  2 28</code></pre>
 <pre class="r"><code>chisq.test(xtabs(~S1_BallotData$rwPass+S1_BallotData$labPass))</code></pre>
-<pre><code>## 
+<pre><code>##
 ##  Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
-## 
+##
 ## data:  xtabs(~S1_BallotData$rwPass + S1_BallotData$labPass)
 ## X-squared = 6.9841, df = 1, p-value = 0.008224</code></pre>
 <p>The second analysis corrected some thresholds in both the lab and
@@ -3545,9 +3545,9 @@ and Illinois (60%).</p>
 ##                              0  6  4
 ##                              1  2 28</code></pre>
 <pre class="r"><code>chisq.test(xtabs(~S1_BallotData$rwPass_Corrected+S1_BallotData$labPass_Corrected))</code></pre>
-<pre><code>## 
+<pre><code>##
 ##  Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
-## 
+##
 ## data:  xtabs(~S1_BallotData$rwPass_Corrected + S1_BallotData$labPass_Corrected)
 ## X-squared = 10.208, df = 1, p-value = 0.001398</code></pre>
 <hr>
@@ -3724,16 +3724,16 @@ summary(study2_topics)</code></pre>
 </table>
 <pre class="r"><code>s1_2_diff&lt;-t.test(ngram_uses_mean_fulltext_NSW ~ study_1_2, data=BallotTopics, var.equal=T)
 print(s1_2_diff)</code></pre>
-<pre><code>## 
+<pre><code>##
 ##  Two Sample t-test
-## 
+##
 ## data:  ngram_uses_mean_fulltext_NSW by study_1_2
 ## t = 1.2606, df = 62, p-value = 0.2122
 ## alternative hypothesis: true difference in means between group 1 and group 2 is not equal to 0
 ## 95 percent confidence interval:
 ##  -0.1884353  0.8318676
 ## sample estimates:
-## mean in group 1 mean in group 2 
+## mean in group 1 mean in group 2
 ##        2.003136        1.681420</code></pre>
 <pre class="r"><code>#R^2 = (t^2)/((t^2) + df)
 paste(&quot;R^2 =&quot;, (s1_2_diff$statistic^2)/((s1_2_diff$statistic^2)+s1_2_diff$parameter))</code></pre>
@@ -3791,30 +3791,30 @@ anova(RMANOVA3)</code></pre>
 <h4>3-item Scale (used)</h4>
 <pre class="r"><code>Fluency_Scale&lt;-as.data.frame(cbind(S2_LabData$fluency2_r, S2_LabData$fluency3, S2_LabData$fluency4))
 alpha(Fluency_Scale)</code></pre>
-<pre><code>## 
-## Reliability analysis   
+<pre><code>##
+## Reliability analysis
 ## Call: alpha(x = Fluency_Scale)
-## 
+##
 ##   raw_alpha std.alpha G6(smc) average_r S/N   ase mean  sd median_r
 ##       0.94      0.94    0.91      0.83  15 0.002  4.6 1.7     0.84
-## 
-##     95% confidence boundaries 
+##
+##     95% confidence boundaries
 ##          lower alpha upper
 ## Feldt     0.93  0.94  0.94
 ## Duhachek  0.93  0.94  0.94
-## 
+##
 ##  Reliability if an item is dropped:
 ##    raw_alpha std.alpha G6(smc) average_r  S/N alpha se var.r med.r
 ## V1      0.91      0.91    0.84      0.84 10.6   0.0032    NA  0.84
 ## V2      0.91      0.91    0.84      0.84 10.3   0.0033    NA  0.84
 ## V3      0.90      0.90    0.82      0.82  9.1   0.0037    NA  0.82
-## 
-##  Item statistics 
+##
+##  Item statistics
 ##       n raw.r std.r r.cor r.drop mean  sd
 ## V1 2879  0.94  0.94  0.89   0.86  4.4 1.9
 ## V2 2876  0.94  0.94  0.90   0.87  4.6 1.8
 ## V3 2880  0.95  0.95  0.91   0.88  4.7 1.8
-## 
+##
 ## Non missing response frequency for each item
 ##       1    2    3    4    5    6    7 miss
 ## V1 0.05 0.14 0.20 0.05 0.18 0.25 0.14    0
@@ -3830,32 +3830,32 @@ alpha(Fluency_Scale)</code></pre>
 <h4>4-item Scale (reported)</h4>
 <pre class="r"><code>Fluency_Scale&lt;-as.data.frame(cbind(S2_LabData$fluency1_r, S2_LabData$fluency2_r, S2_LabData$fluency3, S2_LabData$fluency4))
 alpha(Fluency_Scale)</code></pre>
-<pre><code>## 
-## Reliability analysis   
+<pre><code>##
+## Reliability analysis
 ## Call: alpha(x = Fluency_Scale)
-## 
+##
 ##   raw_alpha std.alpha G6(smc) average_r S/N   ase mean  sd median_r
 ##       0.87      0.87    0.87      0.62 6.4 0.004  4.2 1.5     0.62
-## 
-##     95% confidence boundaries 
+##
+##     95% confidence boundaries
 ##          lower alpha upper
 ## Feldt     0.86  0.87  0.88
 ## Duhachek  0.86  0.87  0.88
-## 
+##
 ##  Reliability if an item is dropped:
 ##    raw_alpha std.alpha G6(smc) average_r  S/N alpha se   var.r med.r
 ## V1      0.94      0.94    0.91      0.83 14.9   0.0020 0.00012  0.84
 ## V2      0.79      0.79    0.78      0.55  3.7   0.0069 0.06221  0.42
 ## V3      0.78      0.78    0.77      0.54  3.5   0.0072 0.06643  0.40
 ## V4      0.79      0.78    0.77      0.54  3.6   0.0071 0.05784  0.42
-## 
-##  Item statistics 
+##
+##  Item statistics
 ##       n raw.r std.r r.cor r.drop mean  sd
 ## V1 2879  0.64  0.65  0.44   0.43  3.1 1.7
 ## V2 2879  0.91  0.90  0.89   0.82  4.4 1.9
 ## V3 2876  0.92  0.91  0.90   0.84  4.6 1.8
 ## V4 2880  0.91  0.91  0.91   0.83  4.7 1.8
-## 
+##
 ## Non missing response frequency for each item
 ##       1    2    3    4    5    6    7 miss
 ## V1 0.15 0.33 0.20 0.10 0.09 0.09 0.04    0
@@ -3886,9 +3886,9 @@ determine whether a ballot passed.</p>
 ##                    0  1  3
 ##                    1  1 19</code></pre>
 <pre class="r"><code>chisq.test(xtabs(~S2_BallotData$rwPass+S2_BallotData$labPass))</code></pre>
-<pre><code>## 
+<pre><code>##
 ##  Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
-## 
+##
 ## data:  xtabs(~S2_BallotData$rwPass + S2_BallotData$labPass)
 ## X-squared = 0.10909, df = 1, p-value = 0.7412</code></pre>
 <p>The second analysis corrected some thresholds in both the lab and
@@ -3901,9 +3901,9 @@ and Illinois (60%).</p>
 ##                              0  3  2
 ##                              1  1 18</code></pre>
 <pre class="r"><code>chisq.test(xtabs(~S2_BallotData$rwPass_Corrected+S2_BallotData$labPass_Corrected))</code></pre>
-<pre><code>## 
+<pre><code>##
 ##  Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
-## 
+##
 ## data:  xtabs(~S2_BallotData$rwPass_Corrected + S2_BallotData$labPass_Corrected)
 ## X-squared = 5.0526, df = 1, p-value = 0.02459</code></pre>
 <hr>
@@ -4191,30 +4191,30 @@ paste(&quot;Mean:&quot;, mean(S1_PrestudyBallots$fluencyM, na.rm=T), &quot;; SD:
 <pre><code>## [1] &quot;Mean: 4.45824362041467 ; SD: 0.942265794333449&quot;</code></pre>
 <pre class="r"><code>Fluency_Scale&lt;-as.data.frame(cbind(S1_PrestudyData$fluency2_r, S1_PrestudyData$fluency3, S1_PrestudyData$fluency4))
 alpha(Fluency_Scale)</code></pre>
-<pre><code>## 
-## Reliability analysis   
+<pre><code>##
+## Reliability analysis
 ## Call: alpha(x = Fluency_Scale)
-## 
+##
 ##   raw_alpha std.alpha G6(smc) average_r S/N    ase mean  sd median_r
 ##       0.91      0.91    0.87      0.77  10 0.0034  4.4 1.7     0.77
-## 
-##     95% confidence boundaries 
+##
+##     95% confidence boundaries
 ##          lower alpha upper
 ## Feldt      0.9  0.91  0.92
 ## Duhachek   0.9  0.91  0.92
-## 
+##
 ##  Reliability if an item is dropped:
 ##    raw_alpha std.alpha G6(smc) average_r S/N alpha se var.r med.r
 ## V1      0.87      0.87    0.77      0.77 6.9   0.0057    NA  0.77
 ## V2      0.88      0.88    0.79      0.79 7.7   0.0051    NA  0.79
 ## V3      0.86      0.86    0.75      0.75 6.1   0.0063    NA  0.75
-## 
-##  Item statistics 
+##
+##  Item statistics
 ##       n raw.r std.r r.cor r.drop mean  sd
 ## V1 2020  0.92  0.92  0.86   0.82  4.4 1.8
 ## V2 2020  0.91  0.91  0.84   0.81  4.4 1.8
 ## V3 2020  0.93  0.93  0.88   0.84  4.5 1.8
-## 
+##
 ## Non missing response frequency for each item
 ##       1    2    3    4    5    6    7    8 miss
 ## V1 0.06 0.13 0.17 0.09 0.18 0.26 0.11 0.01    0
@@ -4508,30 +4508,30 @@ paste(&quot;Mean:&quot;, mean(S2_PrestudyBallots$fluencyM, na.rm=T), &quot;; SD:
 <pre><code>## [1] &quot;Mean: 4.52709694989107 ; SD: 1.03140894286188&quot;</code></pre>
 <pre class="r"><code>Fluency_Scale&lt;-as.data.frame(cbind(S2_PrestudyData$fluency2_r, S2_PrestudyData$fluency3, S2_PrestudyData$fluency4))
 alpha(Fluency_Scale)</code></pre>
-<pre><code>## 
-## Reliability analysis   
+<pre><code>##
+## Reliability analysis
 ## Call: alpha(x = Fluency_Scale)
-## 
+##
 ##   raw_alpha std.alpha G6(smc) average_r S/N    ase mean  sd median_r
 ##       0.94      0.94    0.91      0.83  14 0.0023  4.5 1.8     0.82
-## 
-##     95% confidence boundaries 
+##
+##     95% confidence boundaries
 ##          lower alpha upper
 ## Feldt     0.93  0.94  0.94
 ## Duhachek  0.93  0.94  0.94
-## 
+##
 ##  Reliability if an item is dropped:
 ##    raw_alpha std.alpha G6(smc) average_r  S/N alpha se var.r med.r
 ## V1      0.93      0.93    0.86      0.86 12.6   0.0030    NA  0.86
 ## V2      0.90      0.90    0.82      0.82  8.9   0.0041    NA  0.82
 ## V3      0.89      0.89    0.81      0.81  8.3   0.0043    NA  0.81
-## 
-##  Item statistics 
+##
+##  Item statistics
 ##       n raw.r std.r r.cor r.drop mean  sd
 ## V1 2448  0.93  0.93  0.87   0.84  4.4 1.9
 ## V2 2448  0.94  0.95  0.91   0.88  4.6 1.9
 ## V3 2448  0.95  0.95  0.92   0.88  4.5 1.9
-## 
+##
 ## Non missing response frequency for each item
 ##       1    2    3    4    5    6    7    8 miss
 ## V1 0.07 0.15 0.17 0.06 0.15 0.27 0.13 0.00    0
@@ -4542,6 +4542,8 @@ alpha(Fluency_Scale)</code></pre>
 with this document or the associated publication. All views expressed
 here or in the manuscript are the sole views of the authors and not of
 Sandia National Laboratories.</p>
+<hr>
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
 </div>
 </div>
 </div>
