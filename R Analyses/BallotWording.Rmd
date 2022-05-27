@@ -1,0 +1,672 @@
+---
+title: <span style='font-size:20pt'><strong>Predicting Vote Choice and Election Outcomes from Ballot Wording:</strong></span><br><span style='font-size:16pt'><i>The Role of Processing Fluency in Low Information Direct Democracy Elections</i></span><br><br><span style='font-size:12pt'><center>`r paste('Last compiled on ', format(Sys.time(), '%B'), ' ', lubridate::day(Sys.time()), ', ', lubridate::year(Sys.time()), sep='')`</center></span>
+
+author:
+- affiliation: School of Communication, The Ohio State University, Columbus, OH<br>Corresponding Author - Paper
+  email: shulman.36@osu.edu
+  name: Hillary C. Shulman
+- affiliation: School of Communication, The Ohio State University, Columbus, OH<br>Postdoctoral Fellow, Sandia National Laboratories, Albuquerque, NM<sup>&dagger;</sup><br>Corresponding Author - Code
+  email: email@mattsweitzer.com
+  name: Matthew D. Sweitzer
+- affiliation: School of Communication, The Ohio State University, Columbus, OH
+  name: Olivia M. Bullock
+- affiliation: School of Communication, The Ohio State University, Columbus, OH
+  name: Jason C. Coronel
+- affiliation: School of Communication, The Ohio State University, Columbus, OH<br>Translational Data Analytics Institute, The Ohio State University, Columbus, OH
+  name: Robert M. Bond
+- affiliation: School of Communication, The Ohio State University, Columbus, OH
+  name: Shannon Poulsen
+  
+output:
+  html_document:
+    df_print: paged
+    code_folding: show
+    theme: paper
+    toc: yes
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+---
+
+<!-- This document is written by Matthew Sweitzer -->
+<!-- It is offered under the Creative Commons ShareAlike 4.0 License Agreement: https://creativecommons.org/licenses/by-sa/4.0/ -->
+<!-- That means you can share or change it for any purpose (even commercial); just make sure you give credit to the original author. -->
+<!-- If you have any questions or concerns, please email me at email@mattsweitzer.com -->
+
+<style type="text/css">
+.main-container {
+  max-width: 90% !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+h1 {
+  text-align: center;
+  background-color: #F5F5F5;
+  font-weight: 800;
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+h2 {
+  font-size: 20pt;
+  font-weight: 600;
+}
+hr {
+  border-top: 5px solid #49a1dd;
+}
+</style>
+
+<hr>
+
+# Data Read-in and Description
+
+Three R libraries are needed for this analysis: `psych`, `nlme`, and `dplyr`. Here, we load them in and print the package versions for reproducibility:
+
+```{r message=F}
+R.Version()$version.string
+library(psych)
+packageVersion("psych")
+library(nlme)
+packageVersion("nlme")
+library(dplyr)
+packageVersion("dplyr")
+```
+
+```{r, echo=F}
+#To make this document pretty, we'll also need the knitr and rmarkdown libraries:
+library(knitr) #v1.39
+library(rmarkdown) #v2.14
+```
+
+All of the data are stored in a single RData file which can be read in as follows:
+
+```{r}
+load("BallotWording.RData")
+```
+
+Here is a comprehensive list of the different data frames we used for this analysis:
+
+```{r}
+ls()
+```
+
+The prefix `S1_` indicates that this data corresponds to Study 1 in the manuscript; likewise `S2_` corresponds to Study 2 data. `BallotTopics` contains the topic codes of each ballot from both study 1 and 2 with a dummy variable indicating which study the ballot belongs to.
+
+<hr>
+
+```{r}
+paged_table(BallotTopics)
+```
+
+* **Ballot** - string, unique ballot identifier
+* **Primary_Topic** - string, primary topic code
+* **study_1_2** - number, indicates in which study the ballot was presented to participants
+* **modified_text** - string, text of the ballot, modified by the researchers to ensure that participants considered the ballot issue as though it was from the state in which data collection took place (e.g., "Florida" becomes "Ohio")
+* **ngram_uses_mean_fulltext_NSW** - number, mean Google ngram uses score for the full text (i.e., title and body) of the ballot, stop words removed
+
+<hr>
+
+```{r}
+paged_table(S1_BallotData)
+```
+
+* **Ballot** - string, unique ballot issue identifier
+* **labPass** - binary, whether the ballot issue passed using a >50% threshold of all lab participants' votes (excluding "abstain"; 1) or not (0)
+* **rwPass** - binary, whether the ballot issue passed using a >50% threshold of all real-world votes cast (1) or not (0)
+* **labPass_Corrected** - binary, whether the ballot issue passed among lab participants using a >50% threshold for most ballot issues, a >55% threshold for ballot issues from Colorado, and a >60% threshold for ballot issues from Florida and Illinois (excluding "abstain"; 1) or not (0)
+* **rwPass_Corrected** - binary, whether the ballot issue passed among real-world voters using a >50% threshold for most ballot issues, a >55% threshold for ballot issues from Colorado, and a >60% threshold for ballot issues from Florida and Illinois (1) or not (0)
+* **norming_familiarity** - number, ballot's mean score among norming (pretest) study participants' answer to the question "I feel familiar with the topics that this ballot measure is about." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **norming_interest** - number, ballot's mean score among norming (pretest) study participants' answer to the question "This ballot measure is interesting." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **norming_importance** - number, ballot's mean score among norming (pretest) study participants' answer to the question "This ballot measure is important" Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **ngram_uses_mean_fulltext_NSW** - number, mean Google ngram uses score for the full text (i.e., title and body) of the ballot, stop words removed
+
+<hr>
+
+```{r}
+paged_table(S1_LabData)
+```
+
+* **Subject** - string, unique participant identifier
+* **Ballot** - string, unique ballot issue identifier
+* **fluency1** - number, participant's answer to the question "A lot of the information presented was new to me." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **fluency2** - number, participant's answer to the question "Overall, I found the language used in this ballot measure to be difficult." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **fluency3** - number, participant's answer to the question "It was easy for me to understand the information presented." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **fluency4** - number, participant's answer to the question "The ballot measure I just read was easy to read." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **fluency1_r** - number, reverse-coded `fluency1`
+* **fluency2_r** - number, reverse-coded `fluency2`
+* **fluencyM** - number, mean of `fluency2_r`, `fluency3`, and `fluency4`
+
+<hr>
+
+```{r}
+paged_table(S1_ParticipantData)
+```
+
+* **Subject** - string, unique participant identifier
+* **Sex** - string, participant's answer to the question "What is your sex?" Response options include "Male" or "Female".
+* **Age** - number, participant's answer to the question "How old are you?" Responses were collected in a text entry field.
+* **Race** - string, participant's answer to the question "What is your race?" Responses were collected in a text entry field and cleaned for continuity (e.g., "White" and "caucasian" both become "White/Caucasian").
+* **PartyID** - string, participant's partisan identity binned into three categories: "Democrat", "Independent", and "Republican".
+
+<hr>
+
+```{r}
+paged_table(S1_PrestudyData)
+```
+
+* **Subject** - string, unique participant identifier
+* **Ballot** - string, unique ballot issue identifier
+* **fluency1** - number, participant's answer to the question "A lot of the information presented was new to me." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **fluency2** - number, participant's answer to the question "Overall, I found the language used in this ballot measure to be difficult." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **fluency3** - number, participant's answer to the question "It was easy for me to understand the information presented." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **fluency4** - number, participant's answer to the question "The ballot measure I just read was easy to read." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **fluency1_r** - number, reverse-coded `fluency1`
+* **fluency2_r** - number, reverse-coded `fluency2`
+* **fluencyM** - number, mean of `fluency2_r`, `fluency3`, and `fluency4`
+* **Familiarity** - number, participant's answer to the question "I feel familiar with the topics that this ballot measure is about." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **Importance** - number, participant's answer to the question "This ballot measure is important" Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **Interest** - number, participant's answer to the question "This ballot measure is interesting." Response options ranged from Strongly Disagree (1) to Strongly Agree (7).
+* **Age** - number, participant's answer to the question "How old are you?" Responses were collected in a text entry field.
+* **Sex** - string, participant's answer to the question "What is your sex?" Response options include "Male" or "Female".
+* **Race** - string, participant's answer to the question "What is your race?" Response options include "White/Caucasian", "Black/African American", "American Indian or Alaska Native", "Asian", "Native Hawaiian or Pacific Islander", "Latino/a or Hispanic", and "Mixed-race or Other"
+* **Income** - string, participant's answer to the question "What best describes your average yearly income?" Response options include "Less than \$10,000", "\$10,000 - \$19,999", "\$20,000 - \$29,999", "\$30,000 - \$39,999", "\$40,000 - \$49,999", "\$50,000 - \$59,999", "\$60,000 - \$69,999", "\$70,000 - \$79,999", "\$80,000 - \$89,999", "\$90,000 - \$99,999", "\$100,000 - \$149,999", and "More than \$150,000".
+* **Education** - string, participant's answer to the question" What is the highest level of education you have completed?" Responce options include "Less than high school", "High school graduate", "Some college", "2 year degree", "4 year degree", "Professional/Master's degree", and "Doctorate".
+* **PartyID** - string, participant's partisan identity binned into three categories: "Democrat", "Independent", and "Republican".
+
+<hr>
+
+Note: Study 2 variables are identical to those in the study 1 data frames.
+
+```{r}
+paged_table(S2_BallotData)
+```
+
+<hr>
+
+```{r}
+paged_table(S2_LabData)
+```
+
+<hr>
+
+```{r}
+paged_table(S2_ParticipantData)
+```
+
+<hr>
+
+```{r}
+paged_table(S2_PrestudyData)
+```
+
+<hr>
+
+# Manuscript
+
+## Study 1
+
+The following results are presented in the same order that they appear in the manuscript.
+
+<hr>
+
+### Participant Demographics
+<br>
+
+#### Sex
+
+```{r}
+kable(data.frame(
+  Sex=names(table(S1_ParticipantData$Sex)),
+  Frequency=as.numeric(table(S1_ParticipantData$Sex)),
+  Percentage=as.numeric((table(S1_ParticipantData$Sex)/dim(S1_ParticipantData)[1])*100)))
+```
+
+#### Age
+
+```{r}
+kable(cbind(mean(S1_ParticipantData$Age), sd(S1_ParticipantData$Age), min(S1_ParticipantData$Age), max(S1_ParticipantData$Age)), col.names = c("Mean", "Standard Deviation", "Minimum", "Maximum"))
+```
+
+#### Race
+
+```{r}
+kable(data.frame(
+  Race=names(table(S1_ParticipantData$Race)),
+  Frequency=as.numeric(table(S1_ParticipantData$Race)),
+  Percentage=as.numeric((table(S1_ParticipantData$Race)/dim(S1_ParticipantData)[1])*100)))
+```
+
+#### Partisan Identity
+
+```{r}
+kable(data.frame(
+  PartyID=names(table(S1_ParticipantData$PartyID)),
+  Frequency=as.numeric(table(S1_ParticipantData$PartyID)),
+  Percentage=as.numeric((table(S1_ParticipantData$PartyID)/dim(S1_ParticipantData)[1])*100)))
+```
+
+<hr>
+
+### Ballot Issue Characteristics
+<br>
+
+#### Association of Topic with Difficulty
+
+```{r}
+study1_topics<- aov(ngram_uses_mean_fulltext_NSW ~ as.factor(Primary_Topic), data=BallotTopics[BallotTopics$study_1_2 == '1',])
+summary(study1_topics)
+```
+<br>
+
+#### Ngram Scores
+
+```{r}
+kable(cbind(mean(S1_BallotData$ngram_uses_mean_fulltext_NSW), sd(S1_BallotData$ngram_uses_mean_fulltext_NSW), min(S1_BallotData$ngram_uses_mean_fulltext_NSW), max(S1_BallotData$ngram_uses_mean_fulltext_NSW)), col.names = c("Mean", "Standard Deviation", "Minimum", "Maximum"))
+```
+
+<hr>
+
+### Pretest Survey
+<br>
+
+#### Familiarity
+
+```{r}
+RMANOVA1<-lme(Familiarity ~ Ballot, random=~1|Subject, data=S1_PrestudyData, na.action=na.omit)
+anova(RMANOVA1)
+
+paste("Mean:", mean(S1_BallotData$norming_familiarity, na.rm=T), "; SD:", sd(S1_BallotData$norming_familiarity, na.rm=T))
+```
+<br>
+
+#### Interest
+
+```{r}
+RMANOVA2<-lme(Interest ~ Ballot, random=~1|Subject, data=S1_PrestudyData, na.action=na.omit)
+anova(RMANOVA2)
+
+paste("Mean:", mean(S1_BallotData$norming_interest, na.rm=T), "; SD:", sd(S1_BallotData$norming_interest, na.rm=T))
+```
+<br>
+
+#### Importance
+
+```{r}
+RMANOVA3<-lme(Importance ~ Ballot, random=~1|Subject, data=S1_PrestudyData, na.action=na.omit)
+anova(RMANOVA3)
+
+paste("Mean:", mean(S1_BallotData$norming_importance, na.rm=T), "; SD:", sd(S1_BallotData$norming_importance, na.rm=T))
+```
+
+<hr>
+
+### Processing Fluency
+<br>
+
+#### 3-item Scale (used)
+
+```{r}
+Fluency_Scale<-as.data.frame(cbind(S1_LabData$fluency2_r, S1_LabData$fluency3, S1_LabData$fluency4))
+alpha(Fluency_Scale)
+
+mean(S1_LabData$fluencyM, na.rm=T)
+sd(S1_LabData$fluencyM, na.rm=T)
+```
+<br>
+
+#### 4-item Scale (reported)
+
+```{r}
+Fluency_Scale<-as.data.frame(cbind(S1_LabData$fluency1_r, S1_LabData$fluency2_r, S1_LabData$fluency3, S1_LabData$fluency4))
+alpha(Fluency_Scale)
+```
+
+<hr>
+
+### H1, H2, and RQ1
+
+Note: Analyses testing each of H1, H2, and RQ1 were estimated using a structural equation model in the MPlus statistical software. Please see the corresponding directory in the Open Science Framework page for this manuscript: <a href="https://osf.io/2q7cw/?view_only=feede750966d4a77a840162f318847f7">Open Science Framework page</a> for this manuscript.
+
+<hr>
+
+### Lab and Real-World Voting
+
+We ran this analysis twice: the first time, we used a threshold of >50% of votes cast in the respective contexts (lab vs. real-world) to determine whether a ballot passed.
+
+```{r study1_rwout1, warning=F}
+xtabs(~S1_BallotData$rwPass+S1_BallotData$labPass)
+chisq.test(xtabs(~S1_BallotData$rwPass+S1_BallotData$labPass))
+```
+
+The second analysis corrected some thresholds in both the lab and real-world settings for states which use a higher than 50% threshold for ballot issue passage. Those states are: Colorado (55%), Florida (60%), and Illinois (60%).
+
+```{r study1_rwout2, warning=F}
+xtabs(~S1_BallotData$rwPass_Corrected+S1_BallotData$labPass_Corrected)
+chisq.test(xtabs(~S1_BallotData$rwPass_Corrected+S1_BallotData$labPass_Corrected))
+```
+
+<hr>
+
+## Study 2
+
+The following results are presented in the same order that they appear in the manuscript.
+
+<hr>
+
+### Participant Demographics
+<br>
+
+#### Sex
+
+```{r}
+kable(data.frame(
+  Sex=names(table(S2_ParticipantData$Sex)),
+  Frequency=as.numeric(table(S2_ParticipantData$Sex)),
+  Percentage=as.numeric((table(S2_ParticipantData$Sex)/dim(S2_ParticipantData)[1])*100)))
+```
+
+#### Age
+
+```{r}
+kable(cbind(mean(S2_ParticipantData$Age), sd(S2_ParticipantData$Age), min(S2_ParticipantData$Age), max(S2_ParticipantData$Age)), col.names = c("Mean", "Standard Deviation", "Minimum", "Maximum"))
+```
+
+
+#### Race
+
+```{r}
+kable(data.frame(
+  Race=names(table(S2_ParticipantData$Race)),
+  Frequency=as.numeric(table(S2_ParticipantData$Race)),
+  Percentage=as.numeric((table(S2_ParticipantData$Race)/dim(S2_ParticipantData)[1])*100)))
+```
+
+#### Partisan Identity
+
+```{r}
+kable(data.frame(
+  PartyID=names(table(S2_ParticipantData$PartyID)),
+  Frequency=as.numeric(table(S2_ParticipantData$PartyID)),
+  Percentage=as.numeric((table(S2_ParticipantData$PartyID)/dim(S2_ParticipantData)[1])*100)))
+```
+
+<hr>
+
+### Ballot Issue Characteristics
+<br>
+
+#### Association of Topic with Difficulty
+
+```{r}
+study2_topics<- aov(ngram_uses_mean_fulltext_NSW ~ as.factor(Primary_Topic), data=BallotTopics[BallotTopics$study_1_2 == '2',])
+summary(study2_topics)
+```
+<br>
+
+#### Ngram Scores
+
+```{r}
+kable(cbind(mean(S2_BallotData$ngram_uses_mean_fulltext_NSW), sd(S2_BallotData$ngram_uses_mean_fulltext_NSW), min(S2_BallotData$ngram_uses_mean_fulltext_NSW), max(S2_BallotData$ngram_uses_mean_fulltext_NSW)), col.names = c("Mean", "Standard Deviation", "Minimum", "Maximum"))
+```
+
+```{r}
+s1_2_diff<-t.test(ngram_uses_mean_fulltext_NSW ~ study_1_2, data=BallotTopics, var.equal=T)
+print(s1_2_diff)
+
+#R^2 = (t^2)/((t^2) + df)
+paste("R^2 =", (s1_2_diff$statistic^2)/((s1_2_diff$statistic^2)+s1_2_diff$parameter))
+```
+
+<hr>
+
+### Pretest Survey
+<br>
+
+#### Familiarity
+
+```{r}
+RMANOVA1<-lme(Familiarity ~ Ballot, random=~1|Subject, data=S2_PrestudyData, na.action=na.omit)
+anova(RMANOVA1)
+
+paste("Mean:", mean(S2_BallotData$norming_familiarity, na.rm=T), "; SD:", sd(S2_BallotData$norming_familiarity, na.rm=T))
+```
+<br>
+
+#### Interest
+
+```{r}
+RMANOVA2<-lme(Interest ~ Ballot, random=~1|Subject, data=S2_PrestudyData, na.action=na.omit)
+anova(RMANOVA2)
+
+paste("Mean:", mean(S2_BallotData$norming_interest, na.rm=T), "; SD:", sd(S2_BallotData$norming_interest, na.rm=T))
+```
+<br>
+
+#### Importance
+
+```{r}
+RMANOVA3<-lme(Importance ~ Ballot, random=~1|Subject, data=S2_PrestudyData, na.action=na.omit)
+anova(RMANOVA3)
+
+paste("Mean:", mean(S2_BallotData$norming_importance, na.rm=T), "; SD:", sd(S2_BallotData$norming_importance, na.rm=T))
+```
+
+<hr>
+
+### Processing Fluency
+<br>
+
+#### 3-item Scale (used)
+
+```{r}
+Fluency_Scale<-as.data.frame(cbind(S2_LabData$fluency2_r, S2_LabData$fluency3, S2_LabData$fluency4))
+alpha(Fluency_Scale)
+
+mean(S2_LabData$fluencyM, na.rm=T)
+sd(S2_LabData$fluencyM, na.rm=T)
+```
+<br>
+
+#### 4-item Scale (reported)
+
+```{r}
+Fluency_Scale<-as.data.frame(cbind(S2_LabData$fluency1_r, S2_LabData$fluency2_r, S2_LabData$fluency3, S2_LabData$fluency4))
+alpha(Fluency_Scale)
+```
+
+<hr>
+
+### H1, H2, and RQ1
+
+Note: Analyses testing each of H1, H2, and RQ1 were estimated using a structural equation model in the MPlus statistical software. Please see the corresponding directory in the Open Science Framework page for this manuscript: <a href="https://osf.io/2q7cw/?view_only=feede750966d4a77a840162f318847f7">Open Science Framework page</a> for this manuscript.
+
+<hr>
+
+### Lab and Real-World Voting
+
+We ran this analysis twice: the first time, we used a threshold of >50% of votes cast in the respective contexts (lab vs. real-world) to determine whether a ballot passed.
+
+```{r study2_rwout1, warning=F}
+xtabs(~S2_BallotData$rwPass+S2_BallotData$labPass)
+chisq.test(xtabs(~S2_BallotData$rwPass+S2_BallotData$labPass))
+```
+
+The second analysis corrected some thresholds in both the lab and real-world settings for states which use a higher than 50% threshold for ballot issue passage. Those states are: Colorado (55%), Florida (60%), and Illinois (60%).
+
+```{r study2_rwout2, warning=F}
+xtabs(~S2_BallotData$rwPass_Corrected+S2_BallotData$labPass_Corrected)
+chisq.test(xtabs(~S2_BallotData$rwPass_Corrected+S2_BallotData$labPass_Corrected))
+```
+
+<hr>
+
+# Supplementary Materials
+
+## Study 1 - Pretest
+
+<hr>
+
+### Participant Demographics
+
+#### Sex
+
+```{r}
+#Group data by participant identifier
+S1_PrestudySubjects <- S1_PrestudyData %>% group_by(Subject) %>% summarize(
+  Sex=unique(Sex),
+  Age=unique(Age),
+  Race=unique(Race),
+  Income=unique(Income),
+  Education=unique(Education),
+  PartyID=unique(PartyID)
+)
+
+kable(data.frame(
+  Sex=names(table(S1_PrestudySubjects$Sex)),
+  Frequency=as.numeric(table(S1_PrestudySubjects$Sex)),
+  Percentage=as.numeric((table(S1_PrestudySubjects$Sex)/length(S1_PrestudySubjects$Sex))*100)))
+```
+
+#### Age
+
+```{r}
+kable(cbind(mean(S1_PrestudySubjects$Age, na.rm=T), sd(S1_PrestudySubjects$Age, na.rm=T), min(S1_PrestudySubjects$Age, na.rm=T), max(S1_PrestudySubjects$Age, na.rm=T)), col.names = c("Mean", "Standard Deviation", "Minimum", "Maximum"))
+```
+
+#### Race
+
+```{r}
+kable(data.frame(
+  Race=names(table(S1_PrestudySubjects$Race)),
+  Frequency=as.numeric(table(S1_PrestudySubjects$Race)),
+  Percentage=as.numeric((table(S1_PrestudySubjects$Race)/length(S1_PrestudySubjects$Race))*100)))
+```
+
+#### Income
+
+```{r}
+kable(data.frame(
+  Income=names(table(S1_PrestudySubjects$Income)),
+  Frequency=as.numeric(table(S1_PrestudySubjects$Income)),
+  Percentage=as.numeric((table(S1_PrestudySubjects$Income)/length(S1_PrestudySubjects$Income))*100)))
+```
+
+#### Education
+
+```{r}
+kable(data.frame(
+  Education=names(table(S1_PrestudySubjects$Education)),
+  Frequency=as.numeric(table(S1_PrestudySubjects$Education)),
+  Percentage=as.numeric((table(S1_PrestudySubjects$Education)/length(S1_PrestudySubjects$Education))*100)))
+```
+
+#### Partisan Identity
+
+```{r}
+kable(data.frame(
+  PartyID=names(table(S1_PrestudySubjects$PartyID)),
+  Frequency=as.numeric(table(S1_PrestudySubjects$PartyID)),
+  Percentage=as.numeric((table(S1_PrestudySubjects$PartyID)/length(S1_PrestudySubjects$PartyID))*100)))
+```
+
+<hr>
+
+### Ballot Issue Measures
+
+#### Processing Fluency
+
+```{r}
+S1_PrestudyBallots <- S1_PrestudyData %>% group_by(Ballot) %>% summarize(fluencyM=mean(fluencyM))
+
+paste("Mean:", mean(S1_PrestudyBallots$fluencyM, na.rm=T), "; SD:", sd(S1_PrestudyBallots$fluencyM, na.rm=T))
+
+Fluency_Scale<-as.data.frame(cbind(S1_PrestudyData$fluency2_r, S1_PrestudyData$fluency3, S1_PrestudyData$fluency4))
+alpha(Fluency_Scale)
+```
+
+<hr>
+
+## Study 2 - Pretest
+
+<hr>
+
+### Participant Demographics
+
+#### Sex
+
+```{r}
+#Group data by participant identifier
+S2_PrestudySubjects <- S2_PrestudyData %>% group_by(Subject) %>% summarize(
+  Sex=unique(Sex),
+  Age=unique(Age),
+  Race=unique(Race),
+  Income=unique(Income),
+  Education=unique(Education),
+  PartyID=unique(PartyID)
+)
+
+kable(data.frame(
+  Sex=names(table(S2_PrestudySubjects$Sex)),
+  Frequency=as.numeric(table(S2_PrestudySubjects$Sex)),
+  Percentage=as.numeric((table(S2_PrestudySubjects$Sex)/length(S2_PrestudySubjects$Sex))*100)))
+```
+
+#### Age
+
+```{r}
+kable(cbind(mean(S2_PrestudySubjects$Age, na.rm=T), sd(S2_PrestudySubjects$Age, na.rm=T), min(S2_PrestudySubjects$Age, na.rm=T), max(S2_PrestudySubjects$Age, na.rm=T)), col.names = c("Mean", "Standard Deviation", "Minimum", "Maximum"))
+```
+
+#### Race
+
+```{r}
+kable(data.frame(
+  Race=names(table(S2_PrestudySubjects$Race)),
+  Frequency=as.numeric(table(S2_PrestudySubjects$Race)),
+  Percentage=as.numeric((table(S2_PrestudySubjects$Race)/dim(S2_PrestudySubjects)[1])*100)))
+```
+
+#### Income
+
+```{r}
+kable(data.frame(
+  Income=names(table(S2_PrestudySubjects$Income)),
+  Frequency=as.numeric(table(S2_PrestudySubjects$Income)),
+  Percentage=as.numeric((table(S2_PrestudySubjects$Income)/dim(S2_PrestudySubjects)[1])*100)))
+```
+
+#### Education
+
+```{r}
+kable(data.frame(
+  Education=names(table(S2_PrestudySubjects$Education)),
+  Frequency=as.numeric(table(S2_PrestudySubjects$Education)),
+  Percentage=as.numeric((table(S2_PrestudySubjects$Education)/dim(S2_PrestudySubjects)[1])*100)))
+```
+
+#### Partisan Identity
+
+```{r}
+kable(data.frame(
+  PartyID=names(table(S2_PrestudySubjects$PartyID)),
+  Frequency=as.numeric(table(S2_PrestudySubjects$PartyID)),
+  Percentage=as.numeric((table(S2_PrestudySubjects$PartyID)/dim(S2_PrestudySubjects)[1])*100)))
+```
+
+<hr>
+
+### Ballot Issue Measures
+
+#### Processing Fluency
+
+```{r}
+S2_PrestudyBallots <- S2_PrestudyData %>% group_by(Ballot) %>% summarize(fluencyM=mean(fluencyM))
+
+paste("Mean:", mean(S2_PrestudyBallots$fluencyM, na.rm=T), "; SD:", sd(S2_PrestudyBallots$fluencyM, na.rm=T))
+
+Fluency_Scale<-as.data.frame(cbind(S2_PrestudyData$fluency2_r, S2_PrestudyData$fluency3, S2_PrestudyData$fluency4))
+alpha(Fluency_Scale)
+```
+
+<hr>
+
+<sup>&dagger;</sup>Sandia National Laboratories is not affiliated in any way with this document or the associated publication. All views expressed here or in the manuscript are the sole views of the authors and not of Sandia National Laboratories.

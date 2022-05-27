@@ -1,0 +1,35 @@
+TITLE: Ballots Project Mediation Model - Study 1
+
+DATA: FILE IS study1.txt;
+
+VARIABLE:
+	NAMES ARE subj_id fluency2_r fluency3 fluency4 flesch_reading_ease_fulltext
+	ngram_uses_mean_fulltext_NSW norming_familiarity norming_importance norming_interest
+	Choice_OAS Choice_AOS;
+	USEVARIABLES ARE subj_id ngram_uses_mean_fulltext_NSW fluency2_r fluency3 fluency4
+	Choice_AOS norming_familiarity norming_importance norming_interest;
+	CATEGORICAL IS Choice_AOS;
+	MISSING ARE ALL (-99);
+	CLUSTER IS subj_id;
+
+ANALYSIS:
+	TYPE IS complex;
+	ESTIMATOR IS MLR;
+
+MODEL:
+	fluency BY fluency2_r fluency3 fluency4;
+	ngram_uses_mean_fulltext_NSW ON norming_familiarity norming_importance norming_interest;
+	fluency ON ngram_uses_mean_fulltext_NSW (a);
+	fluency ON norming_familiarity norming_importance norming_interest;
+    Choice_AOS ON fluency (b);
+    Choice_AOS ON ngram_uses_mean_fulltext_NSW (c);
+	Choice_AOS ON norming_familiarity norming_importance norming_interest;
+
+MODEL CONSTRAINT:
+	NEW(ind total prop);
+	ind=a*b;
+	total = ind + c;
+	prop=ind/total;
+
+OUTPUT:
+	sampstat standardized cinterval;
